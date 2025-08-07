@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Predictive Insights{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-magic"></i> Predictive Insights</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+                <li class="breadcrumb-item active">Predictions</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+{% if prediction_chart %}
+<div class="visualization-container">
+    <h3><i class="bi bi-graph-up"></i> Maintenance Alerts</h3>
+    <p class="text-muted">
+        This chart shows equipment health scores over time with detected anomalies.
+        Red markers indicate unusual sensor readings that may require investigation.
+    </p>
+    {{ prediction_chart|safe }}
+</div>
+{% endif %}
+
+{% if recommendations %}
+<div class="visualization-container">
+    <h3><i class="bi bi-clipboard2-pulse"></i> Maintenance Recommendations</h3>
+    <div class="list-group">
+        {% for rec in recommendations %}
+        <div class="list-group-item {% if rec.severity == 'high' %}list-group-item-danger{% else %}list-group-item-warning{% endif %}">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">
+                    {% if rec.severity == 'high' %}
+                    <i class="bi bi-exclamation-triangle-fill"></i> High Priority
+                    {% else %}
+                    <i class="bi bi-exclamation-circle-fill"></i> Medium Priority
+                    {% endif %}
+                </h5>
+            </div>
+            <p class="mb-1">{{ rec.message }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="text-center mt-4">
+    <a href="/" class="btn btn-primary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+{% endblock %}

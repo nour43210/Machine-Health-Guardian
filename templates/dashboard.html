@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card metric-card h-100">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Total Records</h5>
+                <div class="display-4">{{ "{:,}".format(metrics.total_records) }}</div>
+            </div>
+        </div>
+    </div>
+    
+    {% if metrics.date_range %}
+    <div class="col-md-3 mb-3">
+        <div class="card metric-card h-100">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Date Range</h5>
+                <div>{{ metrics.date_range.start }} to {{ metrics.date_range.end }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if metrics.failure_rate is not none %}
+    <div class="col-md-3 mb-3">
+        <div class="card metric-card h-100">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Failure Rate</h5>
+                <div class="display-4">{{ metrics.failure_rate }}%</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="col-md-3 mb-3">
+        <div class="card metric-card h-100">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Sensors</h5>
+                <div class="display-4">{{ metrics.sensor_count }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="visualization-container">
+            <h3><i class="bi bi-heart-pulse"></i> Health Overview</h3>
+            {% if health_chart %}
+                {{ health_chart|safe }}
+            {% else %}
+                <div class="alert alert-warning">No health data available</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-lightning-charge"></i> Quick Actions
+            </div>
+            <div class="card-body">
+                <a href="/predict" class="btn btn-outline-primary w-100 mb-3">
+                    <i class="bi bi-graph-up"></i> Predictive Analysis
+                </a>
+                <a href="/test-machine" class="btn btn-outline-info w-100 mb-3">
+                    <i class="bi bi-clipboard2-pulse"></i> Test Machine
+                </a>
+                <button class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#analysisModal">
+                    <i class="bi bi-bar-chart"></i> Custom Analysis
+                </button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-cpu"></i> Sensor Status
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for col in columns %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ col }}
+                        <span class="badge bg-primary rounded-pill">Active</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Custom Analysis</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/analyze">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Select Sensors/Features</label>
+                        <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px;">
+                            {% for col in columns %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="columns" value="{{ col }}" id="col-{{ loop.index }}">
+                                <label class="form-check-label" for="col-{{ loop.index }}">
+                                    {{ col }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Analyze</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
